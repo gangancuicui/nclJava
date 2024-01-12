@@ -40,12 +40,12 @@
 			<view class="pubuBox">
 				<view class="pubuItem">
 					<view class="item-masonry" v-for="(item, index) in floorList" :key="index">
-						<image :src="item.pic" mode="widthFix" @click="gotodetail(item.goods_id)"></image>
+						<image :src="item.pics" mode="widthFix" @click="gotodetail(item.id)"></image>
 						<view class="listtitle"> 
-							<view class="listtitle1">{{ item.goods_name }}</view>
+							<view class="listtitle1">{{ item.goodsName }}</view>
 							<view class="listtitle2">
 								<text class="listtitle2son">￥</text>
-								{{ item.goods_price }}
+								{{ item.goodsPrice }}
 								<button class="add" style="primary" @click="add(item)">添加进购物车</button>
 							</view>
 						</view>
@@ -104,17 +104,21 @@
 		methods: {
 			...mapMutations('m_cart', ['addCart']),
 			async getfloorList() {
-				let db = uni.cloud.database().collection('goods')
-				.where({
-					cate: "vegetable"
-				})
-				await db.get({
-					success: (test) => {
-						console.log(test)
-						this.floorList = test.data
-						console.log(this.floorList)
-					}
-				})
+				// let db = uni.cloud.database().collection('goods')
+				// .where({
+				// 	cate: "vegetable"
+				// })
+				// await db.get({
+				// 	success: (test) => {
+				// 		console.log(test)
+				// 		this.floorList = test.data
+				// 		console.log(this.floorList)
+				// 	}
+				// })
+				const { data: res } =await uni.$http.get('/hotgoods')
+				console.log(1)
+				console.log(res)
+				this.floorList=res.data	
 			},
 
 			async getSwiperList() {

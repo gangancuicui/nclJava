@@ -4,7 +4,7 @@
 		<view class="scroll-view-container">
 			<scroll-view class='left-scroll-view' scroll-y :style="{height: wh+'px'}">
 				<block v-for="(item,i) in cateList" :key="i">
-					<view :class="['left-view-item',i=== active ? 'active' : '' ]"@click="activeChanged(i)">{{item.cat_name}}
+					<view :class="['left-view-item',i=== active ? 'active' : '' ]"@click="activeChanged(i)">{{item.catName}}
 					
 					</view>
 				</block>
@@ -13,8 +13,8 @@
 				<view class="title">/ {{title}} /</view>
 				<view class="cate2" >
 						 <view class="cate2-item"@click="gotoList(item2)" v-for="(item2,i2) in cateList2" :key="i2">
-							 <image :src="item2.icon"></image>
-							 <text class="text">{{item2.goods_name}}</text>
+							 <image :src="item2.pics"></image>
+							 <text class="text">{{item2.goodsName}}</text>
 						 </view>
 					
 				</view>
@@ -35,7 +35,7 @@
 				active:0,
 				cateList2:[],
 				scrollTop:0,
-				title:'新鲜蔬菜'
+				title:'自种蔬菜'
 			};
 		},
 		onLoad() {
@@ -46,23 +46,28 @@
 		methods:{
 			async getCateList(){
 				
-				let db=uni.cloud.database().collection('cate')
-				db.get({
-					success :(test)=>{
+				// let db=uni.cloud.database().collection('cate')
+				// db.get({
+				// 	success :(test)=>{
 						
-						console.log(test.data)
-						this.cateList=test.data
-						this.cateList2= this.cateList[0].children
-						 //this.scrollTop = 0
+				// 		console.log(test.data)
+				// 		this.cateList=test.data
+				// 		this.cateList2= this.cateList[0].children
+				// 		 //this.scrollTop = 0
 						
-					}
-				})
+				// 	}
+				// })
+				const  { data: res }  =await uni.$http.get('/getCateList')
+				console.log(1)
+				console.log(res)
+				this.cateList=res.data
+				this.cateList2= this.cateList[0].goods
 			},
 			activeChanged(i){
 				console.log(i)
 				this.active=i
-				this.title=this.cateList[i].cat_name
-				this.cateList2 = this.cateList[i].children;	
+				this.title=this.cateList[i].catName
+				this.cateList2 = this.cateList[i].goods;	
 				if(this.scrollTop==0){
 					this.scrollTop=1
 				}
@@ -72,7 +77,7 @@
 			},
 			gotoList(item){
 				uni.navigateTo({
-					url:'/subpkg/goods_detail/goods_detail?goods_id='+item.goods_id
+					url:'/subpkg/goods_detail/goods_detail?goods_id='+item.id
 				})
 			},
 			search(){
