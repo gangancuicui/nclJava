@@ -15,7 +15,7 @@
           <image :src="item.img" mode="aspectFill" />
         </view>
 			<view class="info">
-				<text class="date">发布时间：{{ item.cTime}}</text>
+				<text class="date">发布时间：{{ item.ctime}}</text>
 				<text class="title">{{ item.title }}</text>
 				<text class="author">作者：{{item.author}}</text>
 			</view>

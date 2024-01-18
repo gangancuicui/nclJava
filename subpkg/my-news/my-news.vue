@@ -3,48 +3,28 @@
 		<view class="top">
 			<scroll-view class="scroll" scroll-x="true">
 				<view class="tabs">
-					<view :class="flag === '选种' ? 'tab active' : 'tab'" id="选种" @click="select"><text>选种</text></view>
-					<view :class="flag === '种植' ? 'tab active' : 'tab'" id="种植" @click="select"><text>种植</text></view>
-					<view :class="flag === '销售' ? 'tab active' : 'tab'" id="销售" @click="select"><text>销售</text></view>
+					<view :class="flag1 === '选种' ? 'tab active' : 'tab'" id="选种" @click="select"><text>选种</text></view>
+					<view :class="flag1 === '种植' ? 'tab active' : 'tab'" id="种植" @click="select"><text>种植</text></view>
+					<view :class="flag1 === '销售' ? 'tab active' : 'tab'" id="销售" @click="select"><text>销售</text></view>
 				</view>
 			</scroll-view>
 		</view>
-		<view >
-			<!-- <view class="news-list">
-			<uni-swipe-action>
-			    <view class="news-item" v-for="(item, index) in newsList" :key='index'>
-			        <uni-swipe-action-item :right-options='options' @click='delById(item._id, item.paperid)'>
-			            <view class="test" >
-			                <view class="image">
-			                    <image :src="item.img" mode="aspectFill" />
-			                </view>
-			                <view class="info">
-			                    <text class="date">发布时间：{{ item.cTime}}</text>
-			                    <text class="title">{{ item.title }}</text>
-			                    <text class="author">作者：{{item.author}}</text>
-			                </view>
-						</view>
-			        </uni-swipe-action-item>
-			    
-				</view>
-			</uni-swipe-action>
-			</view> -->
+		<view>
 			<view class="news-list">
-			      <view class="news-item" v-for="(item, index) in newsList" :key="index" >
-					  <view class="test" @click="goToDetail(item._id, item.title)">
-					  	<view class="image">
-					  	  <image :src="item.img" mode="aspectFill"/>
-					  	</view>
-					  		<view class="info">
-					  			<text class="date">发布时间：{{ item.cTime}}</text>
-					  			<text class="title">{{ item.title }}</text>
-					  			<text class="author">作者：{{item.author}}</text>
-					  		</view>
-					  </view>
-						<button class="del" @click="delById(item._id,item.paperid)">删除</button>
-						
-			      </view>
-			    </view>
+				<view class="news-item" v-for="(item, index) in newsList" :key="index" >
+					<view @click="goToDetail(item.id,item.title)">
+						<view class="image">
+							<image :src="item.img" mode="aspectFill" />
+						</view>
+						<view class="info">
+							<text class="date">发布时间：{{item.ctime}}</text>
+							<text class="title">{{ item.title }}</text>
+							<text class="author">作者：{{item.author}}</text>
+						</view>
+					</view>
+					<button class="del" @click="delById(item.id,item.paperid)">删除</button>
+				</view>
+			</view>
 		</view>
 	</view>
 </template>
@@ -56,8 +36,13 @@
 		data() {
 			return {
 				newsList: [],
-				flag: '种植',
-				openid: '',
+				flag1: '种植',
+				page: 1,
+				size: 5,
+				loading: false,
+				total: 0,
+				flag: false,
+				openid:"",
 
 				options: [{
 					text: '删除',
@@ -69,7 +54,21 @@
 		},
 		onLoad(opentions) {
 			this.openid = opentions.openid
-			this.getNewsList()
+			this.page = 1,
+			this.size = 5,
+				this.getNewsList()
+		},
+		onReachBottom() {
+			 if (this.page * this.size >= this.total) {
+				 wx.showLoading({
+				       title: '数据加载完毕！',
+				})
+				wx.hideLoading(); // 关闭loading
+				return ;
+			 }
+			if(this.loading)return;
+			this.page++;
+			this.flashNewsList()
 		},
 
 		methods: {
@@ -80,75 +79,110 @@
 
 				});
 			},
+			async getNewsList() {
+				this.flag = true;
+				wx.showLoading({
+					title: '数据加载中...',
+				})
+				const {
+					data: res
+				} = await uni.$http.get("/paper/self", {
+					type: "种植",
+					page: this.page,
+					size: this.size,
+					openid: this.openid
+				})
+				console.log(res)
+				this.newsList = res.data.rows;
+				this.total = res.data.total;
+				wx.hideLoading();
+				this.flag = false;
+				console.log(res.data.rows);
 
-			select(e) {
+			},
+			async flashNewsList() {
+				this.flag = true;
+				wx.showLoading({
+					title: '数据加载中...',
+				})
+				// const db =uni.cloud.database().collection('farmer').where({paperid:"种植"})
+				//     db.get({
+				//       success: (res)=>{
+				//         console.log(res)
+				//           this.newsList=[...this.newsList,...res.data]
+				//         console.log(this.newsList)
+
+				//       }
+				//     })
+				const {
+					data: res
+				} = await uni.$http.get("/paper/self", {
+					type: this.flag1,
+					page: this.page,
+					size: this.size,
+					openid: this.openid
+				})
+				console.log(res)
+				this.newsList = res.data.rows;
+				this.total = res.data.total;
+				wx.hideLoading();
+				this.flag = false;
+				console.log(res.data.rows);
+
+			},
+			async refresh() {
+				const {
+					data: res
+				} = await uni.$http.get("/paper/self", {
+					type: this.flag1,
+					page: this.page,
+					size: this.size,
+					openid: this.openid
+				})
+				console.log(res)
+				this.newsList = res.data.rows
+				console.log(res.data.rows);
+
+			},
+			async select(e) {
 				console.log(e)
 				var id = e.currentTarget.id
-				this.flag = e.currentTarget.id
-				const db = wx.cloud.database().collection('farmer').where({
-					paperid: id,
-					_openid: this.openid
-				})
-				db.get({
-					success: (res) => {
-						console.log(res);
-						this.newsList = res.data
-						console.log('res')
-					}
-				})
+				this.flag1 = e.currentTarget.id
+				this.page = 1;
+				const {
+					data: res
+				} = await uni.$http.get("/paper/self", {
+					type: id,
+					page: this.page,
+					size: this.size,
+					openid: this.openid
+				});
+				console.log(res);
+				this.newsList = res.data.rows
+				this.total = res.data.total;
+				console.log(this.newsList);
 			},
-			getNewsList() {
-				console.log('res')
-				const db = uni.cloud.database().collection('farmer').where({
-					paperid: "种植",
-					_openid: this.openid
-				})
-				db.get({
-					success: (res) => {
-						console.log(res);
-						this.newsList = [...this.newsList, ...res.data]
-						console.log('res')
-					}
-				})
-			},
-			selectByFlag() {
-				const db = wx.cloud.database().collection('farmer').where({
-					paperid: this.flag,
-					_openid: this.openid
-				})
-				db.get({
-					success: (res) => {
-						console.log(res);
-						this.newsList = res.data
-						console.log('res')
-					}
-				})
-			},
-			delById(id, pid) {
+			async delById(id, pid) {
 				var _this = this;
 				wx.showModal({
 					title: '提示',
 					content: '是否确认删除',
-					success(res) {
+					async success(res) {
 						if (res.confirm) {
 							console.log('用户点击确定')
-							let db = wx.cloud.database() //设置数据库
-							let userCollection = db.collection('farmer') //单引号里为刚刚新建的集合名
-							userCollection.where({
-								//先查询
-								_id: id
-							}).remove().then(res => {
-								wx.showToast({
-								  title: "删除成功",
-								  icon: "success"
-								});
-								_this.selectByFlag();
-							}).catch(err => {
-								wx.showToast({
-								  title: "删除失败",
-								  icon: "error"
-								}) //失败提示错误信息
-							})
+							console.log(id)
+							const {
+								data: res
+							} = await uni.$http.post("/delPaper", {
+								id:id,
+								openid: _this.openid
+							});
+							if(res.code!=1){
+								uni.$showMsg("错误")
+							}
+							uni.$showMsg('删除成功')
+							_this.flashNewsList()
+
 						} else if (res.cancel) {
 							console.log('用户点击取消')
 						}
@@ -293,7 +327,7 @@
 		left: 550rpx;
 		top: 60rpx;
 		background-color: #db7b7b;
-		
-		
+
+
 	}
 </style>

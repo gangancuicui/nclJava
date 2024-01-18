@@ -79,7 +79,7 @@
 		computed: {
 			...mapState('m_cart', ['cart']),
 			...mapGetters('m_cart', ['total']),
-			
+			...mapState('m_user', ['userinfo']),
 		},
 		
 		data() {
@@ -91,20 +91,9 @@
 		onLoad() {
 			this.getfloorList()
 			this.getSwiperList()
-			wx.checkSession({
-				 success () {
-				    console.log(true)
-				  },
-				  fail () {
-					  uni.showToast({
-					    title:"登录过期",
-					    duration:"1500",
-					    icon: 'none',
-					  })
-				    this.updateUserInfo(null)
-				  }
-				})
+			// this.check();
 		},
+		
 		onPullDownRefresh(){
 			wx.showLoading({
 			      title: "更新中",
@@ -117,33 +106,31 @@
 		},
 		methods: {
 			...mapMutations('m_cart', ['addCart']),
-			...mapMutations('m_user', ['updateUserInfo', 'updateToken', 'updateRedirectInfo']),
+			 ...mapMutations('m_user', ['updateUserInfo', 'updateToken', 'updateAddress']),
 			async getfloorList() {
-				// let db = uni.cloud.database().collection('goods')
-				// .where({
-				// 	cate: "vegetable"
-				// })
-				// await db.get({
-				// 	success: (test) => {
-				// 		console.log(test)
-				// 		this.floorList = test.data
-				// 		console.log(this.floorList)
-				// 	}
-				// })
 				const { data: res } =await uni.$http.get('/hotgoods')
 				console.log(1)
 				console.log(res)
 				this.floorList=res.data	
 			},
+			check(){
+				wx.checkSession({
+					 success () {
+					    console.log(true)
+					  },
+					  fail () {
+						  uni.showToast({
+						    title:"登录过期",
+						    duration:"1500",
+						    icon: 'none',
+						  })
+					    uni.setStorageSync('userinfo', null)
+						uni.setStorageSync('token', null)
+					  }
+					})
+			},
 
 			async getSwiperList() {
-				// let db = uni.cloud.database().collection('swiper-list')
-				// await db.get({
-				// 	success: (test) => {
-				// 		this.swiperList = test.data
-
-				// 	}
-				// })
 				const { data: res } =await uni.$http.get('/swiperdata')
 				console.log(1)
 				console.log(res)

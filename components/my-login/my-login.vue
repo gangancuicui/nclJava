@@ -77,7 +77,7 @@
 				// 	})
 				// })
 				uni.uploadFile({
-					url: 'http://127.0.0.1:7070/uploadavatar',
+					url: 'http://127.0.0.1:7070/uploadavatar', 
 					filePath: this.avatar,
 					name: 'image',
 					success: (uploadFileRes) => {

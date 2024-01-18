@@ -1,11 +1,26 @@
 <script>
+	import {
+		mapMutations,
+		mapState
+	} from 'vuex'
 	export default {
+		...mapMutations('m_user', ['updateUserInfo', 'updateToken', 'updateAddress']),
 		onLaunch: function() {
-			console.log('App Launch')
-			wx.cloud.init({
-			    env: 'nongchuangle-6g3o8yhz777d3ace',
-			    traceUser:true
-			})
+			wx.checkSession({
+				 success () {
+				    console.log(true)
+				  },
+				  fail () {
+					  uni.showToast({
+					    title:"登录过期",
+					    duration:"1500",
+					    icon: 'none',
+					  })
+					  uni.setStorageSync('userinfo', null)
+					  uni.setStorageSync('token', null)
+					  
+				  }
+				})
 		},
 		globalData: {
 		    data: {}
