@@ -8,7 +8,14 @@ export default {
 	address: JSON.parse(uni.getStorageSync('address') || '{}'),
 	userinfo: JSON.parse(uni.getStorageSync('userinfo') || '{}'),
 	token: uni.getStorageSync('token') || '',
-	 redirectInfo: null
+	redirectInfo: null,
+	// provinceName:JSON.parse(uni.getStorageSync('provinceName') || '{}'),
+	// cityName:JSON.parse(uni.getStorageSync('cityName') || '{}'),
+	// countyName:JSON.parse(uni.getStorageSync('countyName') || '{}'),
+	// detailInfo:JSON.parse(uni.getStorageSync('detailInfo') || '{}'),
+	// telNumber:JSON.parse(uni.getStorageSync('telNumber') || '{}'),
+	// userName:JSON.parse(uni.getStorageSync('userName') || '{}'),
+	// postalCode:JSON.parse(uni.getStorageSync('postalCode') || '{}'),
   }),
   
 
@@ -17,7 +24,8 @@ export default {
     // 更新收货地址
 	
     updateAddress(state, address) {
-      state.address = address
+      state.address = address,
+	  
 	  this.commit('m_user/saveAddressToStorage')
     },
 	 saveAddressToStorage(state) {
@@ -48,7 +56,8 @@ export default {
   getters: {
 	  addstr(state){
 	  	if (!state.address.provinceName) return ''
-	  	return state.address.provinceName + state.address.cityName + state.address.countyName + state.address.detailInfo	
+	  	// return state.address.provinceName + state.address.cityName + state.address.countyName + state.address.detailInfo	
+		return state.address
 	  }
   },
 }

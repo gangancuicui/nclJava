@@ -56,13 +56,14 @@ export default {
 			})
 		},
 		swipeActionClick(goods) {
-			this.removeGoodsById(goods.goods_id)
+			this.removeGoodsById(goods.id)
 		},
 		radioChange(e) {
 			console.log(e)
 			this.updateGoodsState(e)
 		},
 		numberChange(e) {
+			console.log(e)
 			this.updateGoodsCount(e)
 		}
 	},

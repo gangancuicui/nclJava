@@ -3,16 +3,16 @@
     <!-- 商品左侧图片区域 -->
     <view class="goods-item-left">
 		<radio :checked="goods.goods_state" color="#C00000" v-if="showRadio" @click="radioClick"></radio>
-      <image :src="goods.goods_small_logo || defaultPic" class="goods-pic"></image>
+      <image :src="goods.goodsLogo || defaultPic" class="goods-pic"></image>
     </view>
     <!-- 商品右侧信息区域 -->
     <view class="goods-item-right">
       <!-- 商品标题 -->
-      <view class="goods-name">{{goods.goods_name}}</view>
+      <view class="goods-name">{{goods.goodsName}}</view>
       <view class="goods-info-box">
         <!-- 商品价格 -->
-        <view class="goods-price">￥{{goods.goods_price}}</view>
-		<uni-number-box :min="1" :value='goods.goods_count' v-if="showNum" @change="numChange"></uni-number-box>
+        <view class="goods-price">￥{{goods.goodsPrice}}</view>
+		<uni-number-box :min="1" :value='goods.goodsNumber' v-if="showNum" @change="numChange"></uni-number-box>
       </view>
     </view>
   </view>
@@ -44,14 +44,16 @@
 	methods:{
 		radioClick(){
 			this.$emit('radio-change',{
-				goods_id:this.goods.goods_id,
+				goodsid:this.goods.id,
 				goods_state:!this.goods.goods_state
 			})
 		},
 		numChange(val){
+			console.log(val)
+			console.log(val)
 			this.$emit('num-change',{
-				goods_id:this.goods.goods_id,
-				goods_count:+val
+				id:this.goods.id,
+				goodsNumber:+val
 			})
 		}
 	}

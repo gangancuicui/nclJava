@@ -18,15 +18,15 @@
 				    </view>
 				    <view class="panel-item" @click="order2">
 				      <image src="/static/待收货 (1).png" class="icon" ></image>
-				      <text>待收货</text>
+				      <text>待发货</text>
 				    </view>
 				    <view class="panel-item"@click="order3">
 				      <image src="/static/无忧售后 (1).png" class="icon" ></image>
-				      <text>退款/退货</text>
+				      <text>待收货</text>
 				    </view>
 				    <view class="panel-item" @click="order4">
 				      <image src="/static/全部订单 (1).png" class="icon" ></image>
-				      <text>全部订单</text>
+				      <text>售后</text>
 				    </view>
 				  </view>
 				</view>

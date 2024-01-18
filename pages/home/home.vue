@@ -79,6 +79,7 @@
 		computed: {
 			...mapState('m_cart', ['cart']),
 			...mapGetters('m_cart', ['total']),
+			
 		},
 		
 		data() {
@@ -90,6 +91,19 @@
 		onLoad() {
 			this.getfloorList()
 			this.getSwiperList()
+			wx.checkSession({
+				 success () {
+				    console.log(true)
+				  },
+				  fail () {
+					  uni.showToast({
+					    title:"登录过期",
+					    duration:"1500",
+					    icon: 'none',
+					  })
+				    this.updateUserInfo(null)
+				  }
+				})
 		},
 		onPullDownRefresh(){
 			wx.showLoading({
@@ -103,6 +117,7 @@
 		},
 		methods: {
 			...mapMutations('m_cart', ['addCart']),
+			...mapMutations('m_user', ['updateUserInfo', 'updateToken', 'updateRedirectInfo']),
 			async getfloorList() {
 				// let db = uni.cloud.database().collection('goods')
 				// .where({
@@ -144,15 +159,17 @@
 				}
 			},
 			add(item) {
+				
 				console.log(item)
 				const good = {
-					goods_id: item.goods_id,
-					goods_name: item.goods_name,
-					goods_price: item.goods_price,
-					goods_count: 1,
-					goods_small_logo: item.pics[0].pics_big,
+					id: item.id,
+					goodsName: item.goodsName,
+					goodsPrice: item.goodsPrice,
+					goodsNumber: 1,
+					goodsLogo: item.pics,
 					goods_state: true
 				}
+				console.log(good)
 				this.addCart(good)
 			},
 

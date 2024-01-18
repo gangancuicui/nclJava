@@ -3,14 +3,14 @@
     <view class="top">
       <scroll-view class="scroll" scroll-x="true">
         <view class="tabs">
-          <view :class="flag === '选种' ? 'tab active' : 'tab'" id="选种" @click="select"><text>选种</text></view>
-          <view :class="flag === '种植' ? 'tab active' : 'tab'" id="种植" @click="select"><text>种植</text></view>
-          <view :class="flag === '销售' ? 'tab active' : 'tab'" id="销售" @click="select"><text>销售</text></view>
+          <view :class="flag1 === '选种' ? 'tab active' : 'tab'" id="选种" @click="select"><text>选种</text></view>
+          <view :class="flag1 === '种植' ? 'tab active' : 'tab'" id="种植" @click="select"><text>种植</text></view>
+          <view :class="flag1 === '销售' ? 'tab active' : 'tab'" id="销售" @click="select"><text>销售</text></view>
         </view>
       </scroll-view>
     </view>
     <view class="news-list">
-      <view class="news-item" v-for="(item, index) in newsList" :key="index" @click="goToDetail(item._id, item.title)">
+      <view class="news-item" v-for="(item, index) in newsList" :key="index" @click="goToDetail(item.id, item.title)">
         <view class="image">
           <image :src="item.img" mode="aspectFill" />
         </view>
@@ -25,11 +25,17 @@
 </template>
 
 <script>
+import { $http } from '@escook/request-miniprogram';
 	export default {
 		data() {
 			return {
 				newsList:[],
-				flag:'种植'
+				flag1:'种植',
+				page:1,
+				size:5,
+				loading:false,
+				total:0,
+				flag:false
 			};
 		},
 		onLoad(){
@@ -44,49 +50,122 @@
 			wx.hideLoading()
 			 wx.stopPullDownRefresh()
 		},
+		onReachBottom() {
+			 if (this.page * this.size >= this.total) {
+				 wx.showLoading({
+				       title: '数据加载完毕！',
+				})
+				wx.hideLoading(); // 关闭loading
+				return ;
+			 }
+			if(this.loading)return;
+			this.page++;
+			this.flashNewsList()
+		},
 		methods:{
 			goToDetail(id,title){
 				console.log(id)
 				uni.navigateTo({
-					url: '/subpkg/news-detail/news-detail?id='+id+'&title='+ title
+					url: '/subpkg/news-detail/news-detail?id='+id+'&title='+title
 					
 				});
 			},
 			
-			select(e){
+			async select(e){
 			    console.log(e)
 			    var id=e.currentTarget.id
-				this.flag=e.currentTarget.id
-			    const db =wx.cloud.database().collection('farmer').where({paperid:id})
-			    db.get({
-			      success: (res)=>{
-			        console.log(res);
-			          this.newsList=res.data
-			        console.log('res')
-			      }
-			    })
+				this.flag1=e.currentTarget.id
+			    // const db =wx.cloud.database().collection('farmer').where({paperid:id})
+			    // db.get({
+			    //   success: (res)=>{
+			    //     console.log(res);
+			    //       this.newsList=res.data
+			    //     console.log('res')
+			    //   }
+			    // })
+				this.page=1;
+				const { data: res } =await uni.$http.get("/paper",{
+							type:id,
+							page: this.page,
+							size: this.size
+				});
+				console.log(res);
+				this.newsList=res.data.rows
+				this.total=res.data.total;
+				console.log(res.data.rows);
 			},
-			getNewsList(){
-				console.log('res')
-				const db =uni.cloud.database().collection('farmer').where({paperid:"种植"})
-				    db.get({
-				      success: (res)=>{
-				        console.log(res)
-				          this.newsList=[...this.newsList,...res.data]
-				        console.log(this.newsList)
-						
-				      }
-				    })
-			},
-			refresh(){
-				const db =wx.cloud.database().collection('farmer').where({paperid:this.flag})
-				db.get({
-				  success: (res)=>{
-				    console.log(res);
-				      this.newsList=res.data
-				    console.log('res')
-				  }
+			async getNewsList(){
+				this.flag=true;
+				wx.showLoading({
+				      title: '数据加载中...',
 				})
+				// const db =uni.cloud.database().collection('farmer').where({paperid:"种植"})
+				//     db.get({
+				//       success: (res)=>{
+				//         console.log(res)
+				//           this.newsList=[...this.newsList,...res.data]
+				//         console.log(this.newsList)
+						
+				//       }
+				//     })
+				const { data: res } =await uni.$http.get("/paper",{
+							type:"种植",
+							page: this.page,
+							size: this.size
+				})
+				console.log(res)
+				this.newsList=res.data.rows;
+				this.total=res.data.total;
+				wx.hideLoading();
+				this.flag=false;
+				console.log(res.data.rows);
+				
+			},
+			async flashNewsList(){
+				this.flag=true;
+				wx.showLoading({
+				      title: '数据加载中...',
+				})
+				// const db =uni.cloud.database().collection('farmer').where({paperid:"种植"})
+				//     db.get({
+				//       success: (res)=>{
+				//         console.log(res)
+				//           this.newsList=[...this.newsList,...res.data]
+				//         console.log(this.newsList)
+						
+				//       }
+				//     })
+				const { data: res } =await uni.$http.get("/paper",{
+							type: this.flag1,
+							page: this.page,
+							size: this.size
+				})
+				console.log(res)
+				this.newsList=res.data.rows;
+				this.total=res.data.total;
+				wx.hideLoading();
+				this.flag=false;
+				console.log(res.data.rows);
+				
+			},
+			async refresh(){
+				// const db =wx.cloud.database().collection('farmer').where({paperid:this.flag})
+				// db.get({
+				//   success: (res)=>{
+				//     console.log(res);
+				//       this.newsList=res.data
+				//     console.log('res')
+				//   }
+				// })
+				const { data: res } =await uni.$http.get("/paper",{
+							type:this.flag1,
+							page: this.page,
+							size: this.size
+				})
+				console.log(res)
+				this.newsList=res.data.rows
+				console.log(res.data.rows);
+				
 			}
 			
 		}

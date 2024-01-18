@@ -21,7 +21,7 @@
        </view>
        <view class="row2">
          <view class="row2-left">收货地址：</view>
-         <view class="row2-right">{{addstr}}</view>
+         <view class="row2-right">{{addstr.cityName+addstr.countyName}}</view>
        </view>
      </view>
     </view>
@@ -49,7 +49,7 @@
 				console.log(1)
 				
 				const succ = await uni.chooseAddress()
-				console.log(2)
+				console.log(succ)
 				if(succ.errMsg === 'chooseAddress:ok'){
 					this.updateAddress(succ)
 				}

@@ -4,16 +4,16 @@
 		<view class="view1">
 		  <view>
 		    <view class="title">
-		      <text>{{detail[0].title}}</text>
+		      <text>{{detail.title}}</text>
 		    </view>
 		    <view class="cTime">
-		      <rich-text>{{detail[0].cTime}}</rich-text>
+		      <rich-text>{{detail.cTime}}</rich-text>
 		    </view>
 		    <view class="img">
-		      <image class="image" :src="detail[0].img"></image>
+		      <image class="image" :src="detail.img"></image>
 		    </view>
 		    <view>
-		      <rich-text :nodes='detail[0].content'></rich-text>
+		      <rich-text :nodes='detail.content'></rich-text>
 		    </view>
 		
 		  </view>
@@ -24,7 +24,7 @@
 			<button class="commit" @click="commit" type="primary">发表评论</button>
 			</view>
 				<view class="pinglun-detail">
-					<view class="pinglun-item" v-for="(item,i) in pinglunList" :key="i">
+					<view class="pinglun-item" v-for="(item,i) in remarksList" :key="i">
 						<view class="head"><img :src="item.title"></view>
 						<view class="name">{{item.authorname}}</view>
 						<view class="time">{{item.cTime}}</view>
@@ -46,8 +46,8 @@
 		data() {
 			return {
 				detail:{},
-				tile:{},
-				pinglunList:[],
+				title:{},
+				remarksList:[],
 				id:''
 			};
 		},
@@ -56,22 +56,23 @@
 		},
 		onLoad(options) {
 			console.log(options)
-			    this.tile=options
+			    this.title=options
 				this.id=options.id
 			    var id=options.id
-			    const db =wx.cloud.database().collection('farmer').where({_id:id})
-			    db.get({
-			      success: (res)=>{
-			        console.log(res);
-			         this.detail=res.data
-			        console.log('res')
-			      }
-			    })
-				this.getpinglunList(id)
+			    // const db =wx.cloud.database().collection('farmer').where({_id:id})
+			    // db.get({
+			    //   success: (res)=>{
+			    //     console.log(res);
+			    //      this.detail=res.data
+			    //     console.log('res')
+			    //   }
+			    // })
+				this.getDetail(id);
+				this.getRemarksList(id)
 		},
 		onReady() {
 			uni.setNavigationBarTitle({
-			      title: this.tile.title,
+			      title: this.title.title,
 			    })
 		},
 		onPullDownRefresh(){
@@ -79,21 +80,29 @@
 			      title: "更新中",
 			      mask: true
 			})
-			this.getpinglunList(this.id)
+			this.getRemarksList(this.id)
 			wx.hideLoading()
 			 wx.stopPullDownRefresh()
 		},
 		methods:{
-			getpinglunList(id){
-				console.log(id);
-				console.log(1);
-				const db =wx.cloud.database().collection('pinglun').where({wzid:id})
-				db.get({
-				  success: (res)=>{
-				    console.log(res);
-					this.pinglunList=res.data
-				  }
-				})
+			async getRemarksList(id){
+				// const db =wx.cloud.database().collection('pinglun').where({wzid:id})
+				// db.get({
+				//   success: (res)=>{
+				//     console.log(res);
+				// 	this.remarksList=res.data
+				//   }
+				// })
+				const {data:res}=await uni.$http.get("/paper/remarks/"+id);
+				this.remarksList=res.data;
+				console.log(this.remarksList)
+			},
+			async getDetail(id){
+				const {data:res}=await uni.$http.get("/paper/"+id);
+				this.detail=res.data;
+				console.log(1)
+				console.log(res)
+				
 			},
 			commit(){
 				if (!this.token) return uni.$showMsg('请先登录！')

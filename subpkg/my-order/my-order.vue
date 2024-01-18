@@ -2,25 +2,27 @@
 	<view>
 		<view class="tabs">		  
 		  <view :class="flag === '待付款' ? 'tab active' : 'tab'" id="1" @click="select"><text>待付款</text></view>
-		  <view :class="flag === '待收货' ? 'tab active' : 'tab'" id="2" @click="select"><text>待收货</text></view>
-		  <view :class="flag === '退款/售后' ? 'tab active' : 'tab'" id="3" @click="select"><text>退款/售后</text></view>
-		  <view :class="flag === '全部订单' ? 'tab active' : 'tab'" id="4" @click="select"><text>全部订单</text></view>
+		  <view :class="flag === '待发货' ? 'tab active' : 'tab'" id="2" @click="select"><text>待收货</text></view>
+		  <view :class="flag === '待收货' ? 'tab active' : 'tab'" id="3" @click="select"><text>待收货</text></view>
+		  <view :class="flag === '退款/售后' ? 'tab active' : 'tab'" id="4" @click="select"><text>售后</text></view>
+		  <view :class="flag === '全部订单' ? 'tab active' : 'tab'" id="5" @click="select"><text>全部</text></view>
 		</view>
 		<view class="order-list">
-			<view class="order-item" v-for="(item,i) in orderInfo" :key="i" @click="orderDetail(item._id)">
+			<view class="order-item" v-for="(item,i) in orderInfo" :key="i" @click="orderDetail(item.id)">
 				<view class="num">订单号：</view>
-				<text>{{item._id}}</text>
+				<text>{{item.orderNumber}}</text>
 				<view class="num">订单价格：</view>
-				<text>￥{{item.orderInfo.order_price}}</text>
+				<text>￥{{item.orderCount}}</text>
 				<view class="num">订单创建时间：</view>
-				<text>{{item.orderInfo.order_time}}</text>
+				<text>{{item.creationTime}}</text>
 			</view>
 		</view>
 	</view>
 </template>
 
 <script>
-	import { mapState, mapMutations } from 'vuex'
+	import { $http } from '@escook/request-miniprogram';
+import { mapState, mapMutations } from 'vuex'
 	export default {
 		
 		data() {
@@ -38,55 +40,109 @@
 				this.getorderInfo1()
 			}
 			else if(optins.query==2){
-				this.flag='待收货'
+				this.flag='待发货'
 				this.getorderInfo2()
 			}
 			else if(optins.query==3){
-				this.flag='退款/售后'
+				this.flag='待收货'
 				this.getorderInfo3()
 			}
 			else if(optins.query==4){
-				this.flag='全部订单'
+				this.flag='退款/售后'
 				this.getorderInfo4()
 			}
+			else if(optins.query==5){
+				this.flag='全部订单'
+				this.getorderInfo5()
+			}
+			
 		},
 		methods:{
-			getorderInfo4(){
-				let db=uni.cloud.database().collection('order').where({_openid:this.userinfo.openid})
-				db.get({
-					success :(res)=>{
-						console.log(res.data)
-						this.orderInfo=res.data
-					}
+			async getorderInfo4(){
+				const {data:res}=await $http.get("/order/getOrderList",{
+					openid:this.userinfo.openid,
+					status:4
 				})
+				if(res.code==0){
+					return uni.$showMsg()
+				}
+				this.orderInfo=res.data
+				// let db=uni.cloud.database().collection('order').where({_openid:this.userinfo.openid})
+				// db.get({
+				// 	success :(res)=>{
+				// 		console.log(res.data)
+				// 		this.orderInfo=res.data
+				// 	}
+				// })
 			},
-			getorderInfo2(){
-				let db=uni.cloud.database().collection('order').where({_openid:this.userinfo.openid,order_state:true,payafter:false})
-				db.get({
-					success :(res)=>{
-						console.log(res.data)
-						this.orderInfo=res.data
-					}
+			async getorderInfo1(){
+				const {data:res}=await $http.get("/order/getOrderList",{
+					openid:this.userinfo.openid,
+					status:1
 				})
+				if(res.code==0){
+					return uni.$showMsg()
+				}
+				this.orderInfo=res.data
+				// let db=uni.cloud.database().collection('order').where({_openid:this.userinfo.openid})
+				// db.get({
+				// 	success :(res)=>{
+				// 		console.log(res.data)
+				// 		this.orderInfo=res.data
+				// 	}
+				// })
 			},
-			getorderInfo3(){
-				let db=uni.cloud.database().collection('order').where({_openid:this.userinfo.openid,payafter:true})
-				db.get({
-					success :(res)=>{
-						console.log(res.data)
-						this.orderInfo=res.data
-					}
+			async getorderInfo2(){
+				const {data:res}=await $http.get("/order/getOrderList",{
+					openid:this.userinfo.openid,
+					status:2
 				})
+				if(res.code==0){
+					return uni.$showMsg()
+				}
+				this.orderInfo=res.data
+				// let db=uni.cloud.database().collection('order').where({_openid:this.userinfo.openid})
+				// db.get({
+				// 	success :(res)=>{
+				// 		console.log(res.data)
+				// 		this.orderInfo=res.data
+				// 	}
+				// })
 			},
-			getorderInfo1(){
-				let db=uni.cloud.database().collection('order').where({_openid:this.userinfo.openid,order_state:false})
-				db.get({
-					success :(res)=>{
-						console.log(res.data)
-						this.orderInfo=res.data
-					}
+			async getorderInfo3(){
+				const {data:res}=await $http.get("/order/getOrderList",{
+					openid:this.userinfo.openid,
+					status:3
 				})
+				if(res.code==0){
+					return uni.$showMsg()
+				}
+				this.orderInfo=res.data
+				// let db=uni.cloud.database().collection('order').where({_openid:this.userinfo.openid})
+				// db.get({
+				// 	success :(res)=>{
+				// 		console.log(res.data)
+				// 		this.orderInfo=res.data
+				// 	}
+				// })
 			},
+			async getorderInfo5(){
+				const {data:res}=await $http.get("/order/getOrderAll",{
+					openid:this.userinfo.openid,
+				})
+				if(res.code==0){
+					return uni.$showMsg()
+				}
+				this.orderInfo=res.data
+				// let db=uni.cloud.database().collection('order').where({_openid:this.userinfo.openid})
+				// db.get({
+				// 	success :(res)=>{
+				// 		console.log(res.data)
+				// 		this.orderInfo=res.data
+				// 	}
+				// })
+			},
+			
 			select(e){
 			    console.log(e)
 			    var id=e.currentTarget.id
@@ -96,21 +152,26 @@
 					this.getorderInfo1()
 				}
 				if(id==2){
-					this.flag='待收货'
+					this.flag='待发货'
 					this.getorderInfo2()
 				}
 				if(id==3){
-					this.flag='退款/售后'
+					this.flag='待收货'
 					this.getorderInfo3()
 				}
 				if(id==4){
-					this.flag='全部订单'
+					this.flag='退款/售后'
 					this.getorderInfo4()
 				}
+				if(id==5){
+					this.flag='全部订单'
+					this.getorderInfo5()
+				}
+				
 			},
 			orderDetail(id){
 				uni.navigateTo({
-					url: '/subpkg/order-detail/order-detail?_id='+ id
+					url: '/subpkg/order-detail/order-detail?id='+ id
 				});
 			}
 		}
